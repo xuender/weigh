@@ -1,0 +1,11 @@
+syntax = "proto3";
+package pb;
+option go_package = "./pb";
+import "pb/request.proto";
+import "pb/response.proto";
+
+// Msg.
+message Msg {
+	repeated Request request = 1;
+	repeated Response response= 2;
+}

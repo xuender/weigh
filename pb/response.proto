@@ -1,0 +1,14 @@
+syntax = "proto3";
+package pb;
+option go_package = "./pb";
+import "pb/head.proto";
+
+// Response.
+message Response {
+	int32 statusCode = 1;
+	string status = 2;
+	string error = 3;
+	bytes body = 4;
+	int64 contentLength = 5;
+	repeated Head header = 6;
+}

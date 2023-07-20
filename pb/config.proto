@@ -1,0 +1,9 @@
+syntax = "proto3";
+package pb;
+option go_package = "./pb";
+// Config .
+message Config {
+	uint32 poolSize = 1;
+	// Serial API.
+	repeated string serial = 2;
+}

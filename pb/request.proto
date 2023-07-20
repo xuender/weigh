@@ -1,0 +1,11 @@
+syntax = "proto3";
+package pb;
+option go_package = "./pb";
+import "pb/head.proto";
+// Request.
+message Request {
+	string URL = 1;
+	string method = 2;
+	repeated Head head = 3;
+	bytes body = 4;
+}
