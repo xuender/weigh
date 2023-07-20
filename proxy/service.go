@@ -32,6 +32,7 @@ func NewService(cfg *pb.Config) *Service {
 
 	eng.GET("/", service.ping)
 	eng.POST("/proxy", service.proxy)
+	eng.POST("/api", service.api)
 
 	return service
 }
@@ -41,6 +42,14 @@ func NewHandler(service *Service) http.Handler {
 }
 
 func (p *Service) proxy(ctx *gin.Context) {
+	p.run(ctx, true)
+}
+
+func (p *Service) api(ctx *gin.Context) {
+	p.run(ctx, false)
+}
+
+func (p *Service) run(ctx *gin.Context, old bool) {
 	// start := time.Now()
 	msg := new(pb.Msg)
 
@@ -57,6 +66,13 @@ func (p *Service) proxy(ctx *gin.Context) {
 	// endLog(start, msg, responses)
 
 	reqmsg := new(pb.Msg)
+
+	if old {
+		for index, res := range responses {
+			res.Compatible(msg.Request[index].Id)
+		}
+	}
+
 	reqmsg.Response = responses
 	ctx.ProtoBuf(http.StatusOK, reqmsg)
 }

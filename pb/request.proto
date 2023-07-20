@@ -4,8 +4,18 @@ option go_package = "./pb";
 import "pb/head.proto";
 // Request.
 message Request {
-	string URL = 1;
+	// Id.
+	// Deprecated: discard.
+	int32 id = 1;
 	string method = 2;
-	repeated Head head = 3;
-	bytes body = 4;
+	// Uri.
+	// Deprecated: use URL.
+	string uri = 3;
+	repeated Head head = 4;
+	// Entity.
+	// Deprecated: use Body.
+	bytes entity = 5;
+
+	string URL = 6;
+	bytes body = 7;
 }

@@ -10,6 +10,13 @@ Simple HTTP proxy library for Go.
 go install github.com/xuender/weigh/cmd/weigh@latest
 ```
 
+## Function
+
+* [x] High concurrency goroutine pool.
+* [x] Serial API configuration.
+* [ ] API speed limit.
+* [ ] API timeout.
+
 ## License
 
 © ender, 2023~time.Now

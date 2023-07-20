@@ -5,10 +5,20 @@ import "pb/head.proto";
 
 // Response.
 message Response {
-	int32 statusCode = 1;
-	string status = 2;
-	string error = 3;
-	bytes body = 4;
-	int64 contentLength = 5;
-	repeated Head header = 6;
+	// Id.
+	// Deprecated: discard.
+	int32 id = 1;
+	// Code.
+	// Deprecated: use StatusCode.
+	int32 code = 2;
+	string status = 3;
+	string error = 4;
+	// Entity.
+	// Deprecated: use Body.
+	bytes entity = 5;
+	int64 contentLength = 6;
+	repeated Head header = 7;
+
+	int32 statusCode = 8;
+	bytes body = 9;
 }

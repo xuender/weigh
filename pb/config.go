@@ -21,6 +21,8 @@ func (p *Config) Group(reqs []*Request) ([]*Request, []*Request) {
 	serial := []*Request{}
 
 	for _, req := range reqs {
+		req.Compatible()
+
 		if p.IsSerial(req.URL) {
 			serial = append(serial, req)
 		} else {
