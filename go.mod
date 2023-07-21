@@ -13,7 +13,6 @@ require (
 	github.com/samber/lo v1.38.1
 	github.com/xuender/kit v1.0.22
 	github.com/xuender/limit v1.0.5
-	github.com/xuender/oils v1.0.51
 	google.golang.org/protobuf v1.30.0
 )
 
