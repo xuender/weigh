@@ -2,6 +2,7 @@ package proxy
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -14,11 +15,12 @@ import (
 
 // Service is proxy service.
 type Service struct {
-	eng    *gin.Engine
-	client *resty.Client
-	pool   *pools.Pool[*pb.Request, *pb.Response]
-	cfg    *pb.Config
-	limits *Limits
+	eng     *gin.Engine
+	client  *resty.Client
+	clients map[string]*resty.Client
+	pool    *pools.Pool[*pb.Request, *pb.Response]
+	cfg     *pb.Config
+	limits  *Limits
 }
 
 // NewService creates a new instance of Service.
@@ -30,7 +32,20 @@ func NewService(cfg *pb.Config, limits *Limits) *Service {
 		cfg:    cfg,
 		limits: limits,
 	}
+
 	service.pool = pools.New(int(cfg.PoolSize), service.Execute)
+	service.client.SetTimeout(time.Duration(cfg.TimeoutSecond) * time.Second)
+
+	if len(cfg.Timeout) > 0 {
+		service.clients = make(map[string]*resty.Client, len(cfg.Timeout))
+
+		for key, second := range cfg.Timeout {
+			client := resty.New()
+
+			client.SetTimeout(time.Duration(second) * time.Second)
+			service.clients[key] = client
+		}
+	}
 
 	eng.GET("/", service.ping)
 	eng.POST("/proxy", service.proxy)
@@ -79,21 +94,35 @@ func (p *Service) run(ctx *gin.Context, old bool) {
 	ctx.ProtoBuf(http.StatusOK, reqmsg)
 }
 
-func (p *Service) Execute(req *pb.Request, num int) *pb.Response {
-	if err := p.limits.Check(req.URL); err != nil {
+func (p *Service) getClient(url string) *resty.Client {
+	if len(p.clients) == 0 {
+		return p.client
+	}
+
+	for key, client := range p.clients {
+		if Has(url, key) {
+			return client
+		}
+	}
+
+	return p.client
+}
+
+func (p *Service) Execute(pbreq *pb.Request, num int) *pb.Response {
+	if err := p.limits.Check(pbreq.URL); err != nil {
 		logs.E.Println(num, err)
 
 		return pb.NewErr(err)
 	}
 
-	request := p.client.R()
-	request.Body = req.Body
+	req := p.getClient(pbreq.URL).R()
+	req.Body = pbreq.Body
 
-	for _, item := range req.Head {
-		request.Header.Add(item.Name, item.Value)
+	for _, item := range pbreq.Head {
+		req.Header.Add(item.Name, item.Value)
 	}
 
-	res, err := request.Execute(req.Method, req.URL)
+	res, err := req.Execute(pbreq.Method, pbreq.URL)
 	if err != nil {
 		logs.E.Println(num, err)
 

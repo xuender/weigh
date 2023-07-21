@@ -28,6 +28,10 @@ func NewConfig(env *Env) *pb.Config {
 		cfg.PoolSize = base.Kilo * base.Ten
 	}
 
+	if cfg.TimeoutSecond < 1 {
+		cfg.TimeoutSecond = 300
+	}
+
 	logs.D.Println("pool size:", cfg.PoolSize)
 
 	return cfg

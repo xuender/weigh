@@ -8,20 +8,27 @@ import (
 	"github.com/BurntSushi/toml"
 	"github.com/samber/lo"
 	"github.com/xuender/kit/base"
-	"github.com/xuender/weigh/pb"
+	"github.com/xuender/weigh/app"
 )
 
 func main() {
 	flag.Usage = usage
 	flag.Parse()
 
-	cfg := &pb.Config{
-		PoolSize:      base.Kilo * base.Ten,
-		TimeoutSecond: base.Ten,
-		Serial:        []string{"serial"},
-		QPS:           map[string]uint32{"qps1": base.Ten, "qps2": base.TwentyFour},
-		Timeout:       map[string]uint32{"timeout1": base.Five, "timeout2": base.Seven},
+	cfg := app.NewConfig(&app.Env{Cfg: "weight.toml"})
+
+	if len(cfg.Serial) == 0 {
+		cfg.Serial = []string{"serial"}
 	}
+
+	if len(cfg.QPS) == 0 {
+		cfg.QPS = map[string]uint32{"qps1": base.Ten, "qps2": base.TwentyFour}
+	}
+
+	if len(cfg.Timeout) == 0 {
+		cfg.Timeout = map[string]uint32{"timeout1": base.Five, "timeout2": base.Seven}
+	}
+
 	encoder := toml.NewEncoder(lo.Must1(os.Create("weigh.toml")))
 
 	lo.Must0(encoder.Encode(cfg))

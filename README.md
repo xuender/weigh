@@ -14,8 +14,8 @@ go install github.com/xuender/weigh/cmd/weigh@latest
 
 * [x] High concurrency goroutine pool.
 * [x] Serial API configuration.
-* [ ] API speed limit.
-* [ ] API timeout.
+* [x] API speed limit.
+* [x] API timeout.
 
 ## License
 
