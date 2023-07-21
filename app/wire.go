@@ -15,6 +15,7 @@ func InitCfg(env *Env) *overseer.Config {
 		NewConfig,
 		proxy.NewService,
 		proxy.NewHandler,
+		proxy.NewLimits,
 	)
 
 	return new(overseer.Config)

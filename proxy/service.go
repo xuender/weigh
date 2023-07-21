@@ -18,15 +18,17 @@ type Service struct {
 	client *resty.Client
 	pool   *pools.Pool[*pb.Request, *pb.Response]
 	cfg    *pb.Config
+	limits *Limits
 }
 
 // NewService creates a new instance of Service.
-func NewService(cfg *pb.Config) *Service {
+func NewService(cfg *pb.Config, limits *Limits) *Service {
 	eng := gin.Default()
 	service := &Service{
 		eng:    eng,
 		client: resty.New(),
 		cfg:    cfg,
+		limits: limits,
 	}
 	service.pool = pools.New(int(cfg.PoolSize), service.Execute)
 
@@ -78,6 +80,12 @@ func (p *Service) run(ctx *gin.Context, old bool) {
 }
 
 func (p *Service) Execute(req *pb.Request, num int) *pb.Response {
+	if err := p.limits.Check(req.URL); err != nil {
+		logs.E.Println(num, err)
+
+		return pb.NewErr(err)
+	}
+
 	request := p.client.R()
 	request.Body = req.Body
 
@@ -89,10 +97,7 @@ func (p *Service) Execute(req *pb.Request, num int) *pb.Response {
 	if err != nil {
 		logs.E.Println(num, err)
 
-		return &pb.Response{
-			Error:      err.Error(),
-			StatusCode: http.StatusInternalServerError,
-		}
+		return pb.NewErr(err)
 	}
 
 	resHeader := res.Header()

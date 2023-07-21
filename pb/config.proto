@@ -4,6 +4,9 @@ option go_package = "./pb";
 // Config .
 message Config {
 	uint32 poolSize = 1;
+	uint32 timeoutSecond = 2;
 	// Serial API.
-	repeated string serial = 2;
+	repeated string serial = 3;
+	map<string, uint32> QPS = 4;
+	map<string, uint32> timeout = 5;
 }

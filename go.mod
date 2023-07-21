@@ -11,7 +11,9 @@ require (
 	github.com/google/wire v0.5.0
 	github.com/jpillora/overseer v1.1.6
 	github.com/samber/lo v1.38.1
-	github.com/xuender/kit v1.0.21
+	github.com/xuender/kit v1.0.22
+	github.com/xuender/limit v1.0.5
+	github.com/xuender/oils v1.0.51
 	google.golang.org/protobuf v1.30.0
 )
 
@@ -34,11 +36,12 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.8 // indirect
+	github.com/retailnext/hllpp v1.0.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.11 // indirect
 	golang.org/x/arch v0.3.0 // indirect
 	golang.org/x/crypto v0.9.0 // indirect
-	golang.org/x/exp v0.0.0-20220303212507-bbda1eaf7a17 // indirect
+	golang.org/x/exp v0.0.0-20221208152030-732eee02a75a // indirect
 	golang.org/x/net v0.10.0 // indirect
 	golang.org/x/sys v0.8.0 // indirect
 	golang.org/x/text v0.9.0 // indirect

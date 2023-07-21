@@ -15,7 +15,8 @@ import (
 
 func InitCfg(env *Env) *overseer.Config {
 	config := NewConfig(env)
-	service := proxy.NewService(config)
+	limits := proxy.NewLimits()
+	service := proxy.NewService(config, limits)
 	handler := proxy.NewHandler(service)
 	overseerConfig := NewOverseerCfg(env, handler)
 	return overseerConfig
