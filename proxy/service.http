@@ -1,1 +1,9 @@
-GET http://localhost:8080/
+@host = localhost
+@port = 8080
+### ping
+GET http://{{host}}:{{port}}/
+### api
+POST http://{{host}}:{{port}}/api
+Content-Type: application/json
+
+< msg.json

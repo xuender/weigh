@@ -2,10 +2,10 @@ package proxy
 
 import (
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
 	"github.com/go-resty/resty/v2"
 	"github.com/samber/lo"
 	"github.com/xuender/kit/logs"
@@ -68,9 +68,8 @@ func (p *Service) api(ctx *gin.Context) {
 
 func (p *Service) run(ctx *gin.Context, old bool) {
 	// start := time.Now()
-	msg := new(pb.Msg)
-
-	if err := ctx.ShouldBindBodyWith(msg, binding.ProtoBuf); err != nil {
+	msg := &pb.Msg{}
+	if err := ctx.ShouldBind(msg); err != nil {
 		logs.E.Println(err)
 		ctx.String(http.StatusBadRequest, err.Error())
 
@@ -91,6 +90,13 @@ func (p *Service) run(ctx *gin.Context, old bool) {
 	}
 
 	reqmsg.Response = responses
+
+	if strings.Contains(ctx.ContentType(), "json") {
+		ctx.JSON(http.StatusOK, reqmsg)
+
+		return
+	}
+
 	ctx.ProtoBuf(http.StatusOK, reqmsg)
 }
 
