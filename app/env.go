@@ -2,6 +2,7 @@ package app
 
 import (
 	"github.com/BurntSushi/toml"
+	"github.com/samber/lo"
 	"github.com/xuender/kit/base"
 	"github.com/xuender/kit/logs"
 	"github.com/xuender/weigh/pb"
@@ -20,9 +21,7 @@ func NewEnv() *Env {
 func NewConfig(env *Env) *pb.Config {
 	cfg := &pb.Config{}
 
-	if _, err := toml.DecodeFile(env.Cfg, cfg); err != nil {
-		logs.W.Println(err)
-	}
+	lo.Must0(toml.DecodeFile(env.Cfg, cfg))
 
 	if cfg.PoolSize == 0 {
 		cfg.PoolSize = base.Kilo * base.Ten
@@ -30,6 +29,14 @@ func NewConfig(env *Env) *pb.Config {
 
 	if cfg.TimeoutSecond < 1 {
 		cfg.TimeoutSecond = 300
+	}
+
+	if cfg.MaxIdleConns == 0 {
+		cfg.MaxIdleConns = base.Kilo
+	}
+
+	if cfg.MaxIdleConnsPerHost == 0 {
+		cfg.MaxIdleConnsPerHost = base.Hundred
 	}
 
 	logs.D.Println("pool size:", cfg.PoolSize)

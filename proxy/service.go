@@ -1,6 +1,7 @@
 package proxy
 
 import (
+	"crypto/tls"
 	"net/http"
 	"strings"
 	"time"
@@ -32,9 +33,16 @@ func NewService(cfg *pb.Config, limits *Limits) *Service {
 		cfg:    cfg,
 		limits: limits,
 	}
+	transport := &http.Transport{
+		// nolint: gosec
+		TLSClientConfig:     &tls.Config{InsecureSkipVerify: true},
+		MaxIdleConns:        int(cfg.MaxIdleConns),
+		MaxIdleConnsPerHost: int(cfg.MaxIdleConnsPerHost),
+	}
 
 	service.pool = pools.New(int(cfg.PoolSize), service.Execute)
 	service.client.SetTimeout(time.Duration(cfg.TimeoutSecond) * time.Second)
+	service.client.SetTransport(transport)
 
 	if len(cfg.Timeout) > 0 {
 		service.clients = make(map[string]*resty.Client, len(cfg.Timeout))
@@ -42,6 +50,8 @@ func NewService(cfg *pb.Config, limits *Limits) *Service {
 		for key, second := range cfg.Timeout {
 			client := resty.New()
 
+			client.SetTransport(transport)
+			client.SetCloseConnection(true)
 			client.SetTimeout(time.Duration(second) * time.Second)
 			service.clients[key] = client
 		}
