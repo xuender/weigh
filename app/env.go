@@ -2,7 +2,6 @@ package app
 
 import (
 	"github.com/BurntSushi/toml"
-	"github.com/samber/lo"
 	"github.com/xuender/kit/base"
 	"github.com/xuender/kit/logs"
 	"github.com/xuender/weigh/pb"
@@ -21,7 +20,12 @@ func NewEnv() *Env {
 func NewConfig(env *Env) *pb.Config {
 	cfg := &pb.Config{}
 
-	lo.Must0(toml.DecodeFile(env.Cfg, cfg))
+	if _, err := toml.DecodeFile(env.Cfg, cfg); err != nil {
+		logs.SetLevel(logs.Info)
+		logs.E.Println(env.Cfg, err)
+	} else {
+		logs.SetLevel(logs.Level(cfg.LogLevel))
+	}
 
 	if cfg.PoolSize == 0 {
 		cfg.PoolSize = base.Kilo * base.Ten

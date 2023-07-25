@@ -8,6 +8,7 @@ import (
 	"github.com/BurntSushi/toml"
 	"github.com/samber/lo"
 	"github.com/xuender/kit/base"
+	"github.com/xuender/kit/logs"
 	"github.com/xuender/weigh/app"
 )
 
@@ -16,6 +17,10 @@ func main() {
 	flag.Parse()
 
 	cfg := app.NewConfig(&app.Env{Cfg: "weight.toml"})
+
+	if cfg.LogLevel == 0 {
+		cfg.LogLevel = uint32(logs.Info)
+	}
 
 	if len(cfg.Serial) == 0 {
 		cfg.Serial = []string{"serial"}

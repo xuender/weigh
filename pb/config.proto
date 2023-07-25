@@ -5,10 +5,11 @@ option go_package = "./pb";
 message Config {
 	uint32 poolSize = 1;
 	uint32 timeoutSecond = 2;
-	uint32 MaxIdleConns = 3;
-	uint32 MaxIdleConnsPerHost = 4;
+	uint32 maxIdleConns = 3;
+	uint32 maxIdleConnsPerHost = 4;
+	uint32 logLevel = 5;
 	// Serial API.
-	repeated string serial = 5;
-	map<string, uint32> QPS = 6;
-	map<string, uint32> timeout = 7;
+	repeated string serial = 6;
+	map<string, uint32> QPS = 7;
+	map<string, uint32> timeout = 8;
 }

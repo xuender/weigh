@@ -57,6 +57,12 @@ func NewService(cfg *pb.Config, limits *Limits) *Service {
 		}
 	}
 
+	if len(cfg.QPS) > 0 {
+		for key, qps := range cfg.QPS {
+			service.limits.Add(key, int(qps))
+		}
+	}
+
 	eng.GET("/", service.ping)
 	eng.POST("/proxy", service.proxy)
 	eng.POST("/api", service.api)
@@ -77,8 +83,9 @@ func (p *Service) api(ctx *gin.Context) {
 }
 
 func (p *Service) run(ctx *gin.Context, old bool) {
-	// start := time.Now()
+	start := time.Now()
 	msg := &pb.Msg{}
+
 	if err := ctx.ShouldBind(msg); err != nil {
 		logs.E.Println(err)
 		ctx.String(http.StatusBadRequest, err.Error())
@@ -89,7 +96,10 @@ func (p *Service) run(ctx *gin.Context, old bool) {
 	async, serial := p.cfg.Group(msg.Request)
 	responses := p.pool.Post(async)
 	responses = append(responses, lo.Map(serial, p.Execute)...)
-	// endLog(start, msg, responses)
+
+	if dur := time.Since(start); dur > time.Second*10 {
+		logs.I.Printf("LONG_TIME: %v size: %d url: %s\n", dur, len(msg.Request), msg.Request[0].Uri)
+	}
 
 	reqmsg := new(pb.Msg)
 
@@ -140,7 +150,7 @@ func (p *Service) Execute(pbreq *pb.Request, num int) *pb.Response {
 
 	res, err := req.Execute(pbreq.Method, pbreq.URL)
 	if err != nil {
-		logs.E.Println(num, err)
+		logs.E.Printf("%d read ERR: %s [%d] %s %s\n", num, req.Method, res.StatusCode(), req.URL, err.Error())
 
 		return pb.NewErr(err)
 	}

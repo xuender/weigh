@@ -5,7 +5,10 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/gin-gonic/gin"
 	"github.com/jpillora/overseer"
+	"github.com/xuender/kit/logs"
+	"github.com/xuender/kit/oss"
 	"github.com/xuender/weigh/app"
 )
 
@@ -19,6 +22,14 @@ func main() {
 	flag.Parse()
 
 	overseer.SanityCheck()
+
+	if oss.IsRelease() {
+		gin.SetMode(gin.ReleaseMode)
+		logs.Log(logs.SetLogFile("/var/tmp", "proxy.log"))
+
+		defer logs.Close()
+	}
+
 	overseer.Run(*app.InitCfg(env))
 }
 
