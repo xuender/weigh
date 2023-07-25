@@ -16,7 +16,7 @@ func main() {
 	flag.Usage = usage
 	flag.Parse()
 
-	cfg := app.NewConfig(&app.Env{Cfg: "weight.toml"})
+	cfg := app.NewConfig(&app.Env{Cfg: "weigh.toml"})
 
 	if cfg.LogLevel == 0 {
 		cfg.LogLevel = uint32(logs.Info)

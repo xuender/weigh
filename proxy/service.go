@@ -3,10 +3,10 @@ package proxy
 import (
 	"crypto/tls"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 	"github.com/go-resty/resty/v2"
 	"github.com/samber/lo"
 	"github.com/xuender/kit/logs"
@@ -86,12 +86,14 @@ func (p *Service) run(ctx *gin.Context, old bool) {
 	start := time.Now()
 	msg := &pb.Msg{}
 
-	if err := ctx.ShouldBind(msg); err != nil {
+	if err := ctx.ShouldBindBodyWith(msg, binding.ProtoBuf); err != nil {
 		logs.E.Println(err)
 		ctx.String(http.StatusBadRequest, err.Error())
 
 		return
 	}
+
+	// logs.I.Println(string(lo.Must1(sonic.Marshal(msg))))
 
 	async, serial := p.cfg.Group(msg.Request)
 	responses := p.pool.Post(async)
@@ -101,23 +103,13 @@ func (p *Service) run(ctx *gin.Context, old bool) {
 		logs.I.Printf("LONG_TIME: %v size: %d url: %s\n", dur, len(msg.Request), msg.Request[0].Uri)
 	}
 
-	reqmsg := new(pb.Msg)
-
 	if old {
 		for index, res := range responses {
 			res.Compatible(msg.Request[index].Id)
 		}
 	}
 
-	reqmsg.Response = responses
-
-	if strings.Contains(ctx.ContentType(), "json") {
-		ctx.JSON(http.StatusOK, reqmsg)
-
-		return
-	}
-
-	ctx.ProtoBuf(http.StatusOK, reqmsg)
+	ctx.ProtoBuf(http.StatusOK, &pb.Msg{Response: responses})
 }
 
 func (p *Service) getClient(url string) *resty.Client {

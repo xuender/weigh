@@ -22,7 +22,7 @@ clean:
 	rm -rf dist
 
 build:
-	go build -o dist/weigh cmd/weigh/main.go
+	go build -o dist/weigh -tags="sonic avx" cmd/weigh/main.go
 
 dev:
 	go-cli watch go run cmd/weigh/main.go
