@@ -2,6 +2,7 @@ package proxy
 
 import (
 	"crypto/tls"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -10,6 +11,7 @@ import (
 	"github.com/go-resty/resty/v2"
 	"github.com/samber/lo"
 	"github.com/xuender/kit/logs"
+	"github.com/xuender/kit/oss"
 	"github.com/xuender/kit/pools"
 	"github.com/xuender/weigh/pb"
 )
@@ -172,7 +174,7 @@ func (p *Service) Execute(pbreq *pb.Request, num int) *pb.Response {
 }
 
 func (p *Service) ping(ctx *gin.Context) {
-	ctx.String(http.StatusOK, "PONG")
+	ctx.String(http.StatusOK, fmt.Sprintf("PONG 0725 %v", oss.IsRelease()))
 }
 
 func (p *Service) Handler() http.Handler {
